@@ -7,13 +7,11 @@
 #include <iostream>
 const char *ssid = "FiberHGW_ZTAT49_2.4GHz";
 const char *password = "33khNYhCUeDf";
-const char *server = "http://192.168.1.116:3000/test";
+const char *server = "http://192.168.1.116:3000/deneyapkartRequest";
 DynamicJsonDocument Leds(1024);
 const int ledPins[6] = {D2, D3, D4, D5, D6, D7};
 void connectWifi();
 void getRequest(HTTPClient &client, const char *uri);
-JsonArray getOpenLeds();
-JsonArray getCloseLeds();
 void setup()
 {
   pinMode(LEDR, OUTPUT);
@@ -21,19 +19,15 @@ void setup()
   pinMode(LEDB, OUTPUT);
   for (int i = 0; i < 6; i++)
   {
-    String ledObject = "{\"id\":" + String(ledPins[i]) + ",isOpen:false}";
+    String ledObject = "{\"id\":" + String(i) + ",isOpen:false}";
     DynamicJsonDocument object(1024);
     deserializeJson(object, ledObject);
     pinMode(ledPins[i], OUTPUT);
     digitalWrite(ledPins[i], LOW);
-    Leds[String(ledPins[i])] = object;
+    Leds[String(i)] = object;
   }
-
-  digitalWrite(D7, HIGH);
-
   Serial.begin(115200);
   connectWifi();
-  digitalWrite(D7, LOW);
 }
 
 void loop()
@@ -46,7 +40,7 @@ void loop()
     digitalWrite(LEDB, LOW);
   }
   HTTPClient http;
-  delay(4000);
+  delay(1000);
   getRequest(http, server);
 }
 
@@ -85,59 +79,44 @@ void getRequest(HTTPClient &client, const char *uri)
     DynamicJsonDocument jsonObject(1024);
 
     deserializeJson(jsonObject, res);
-    for (int i = 0; i < 6; i++)
-    {
-      Serial.println(String(ledPins[i]));
-      const char *id = jsonObject[String(ledPins[i])]["id"];
-      Serial.println(id);
-    }
+    // for (int i = 0; i < 6; i++)
+    // {
+    //   Serial.println(String(ledPins[i]));
+    //   const char *id = jsonObject[String(i)]["id"];
+    //   Serial.println(id);
+    // }
     for (JsonPair keyValue : jsonObject.as<JsonObject>())
     {
       JsonObject ledObject = keyValue.value().as<JsonObject>();
       int id = ledObject["id"];
       bool isOpen = ledObject["isOpen"];
-      Serial.print("LED ID: ");
-      Serial.println(id);
-      Serial.print("Is Open: ");
+      // Serial.print("LED ID: ");
+      // Serial.println(ledPins[id]);
+      // Serial.print("Is Open: ");
       if (isOpen)
       {
-        digitalWrite(id, HIGH);
+        digitalWrite(ledPins[id], HIGH);
       }
       else
       {
-        digitalWrite(id, LOW);
+        digitalWrite(ledPins[id], LOW);
       }
       Serial.println(isOpen ? "true" : "false");
     }
-    // for (JsonPair value : jsonObject.as<JsonObject>())
-    // {
-    // }
   }
   else
   {
-    Serial.println("Sunucuya istek gönderilemedi");
     digitalWrite(LEDR, HIGH);
     digitalWrite(LEDG, HIGH);
     digitalWrite(LEDB, LOW);
   }
 
   client.end();
-  delay(1000);
+  delay(250);
   if (WiFi.status() == WL_CONNECTED)
   {
     digitalWrite(LEDR, LOW);
     digitalWrite(LEDG, HIGH);
     digitalWrite(LEDB, LOW);
   }
-}
-JsonArray getOpenLeds()
-{
-
-  JsonArray ledss = Leds["leds"];
-  return ledss;
-}
-JsonArray getCloseLeds()
-{
-  JsonArray ledss = Leds["leds"];
-  return ledss;
 }

@@ -42,10 +42,7 @@ const changeLocation = (location: string) => {
     </div>
   </div>
 </template>
-<style>
-:root {
-  --background-color: #000;
-}
+<style scoped>
 svg {
   color: white;
 }

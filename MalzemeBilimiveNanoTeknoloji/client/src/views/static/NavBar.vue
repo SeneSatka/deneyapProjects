@@ -25,8 +25,9 @@ header {
   display: flex;
   align-items: center;
   padding: 0 10px;
-  width: auto;
-  background-color: rgb(49, 49, 49);
+  max-width: 100%;
+  /* flex-wrap: wrap; */
+  background-color: transparent;
   height: 50px;
   font-size: larger;
   font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
