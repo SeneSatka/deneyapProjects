@@ -3,7 +3,7 @@ DHT dht(dhtPin, dhtType);
 class Sensors
 {
 public:
-    int led1State = LOW, led2State = LOW, led3State = LOW, led4State = LOW;
+    int led1State = LOW, led2State = LOW, led3State = LOW, led4State = LOW, doorState = LOW, windowState = LOW;
     Sensors(){};
     void start()
     {

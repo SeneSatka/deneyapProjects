@@ -20,6 +20,8 @@ class _WiFiControlScreenState extends State<WiFiControlScreen> {
   bool led2State = false;
   bool led3State = false;
   bool led4State = false;
+  bool doorState = false;
+  bool windowState = false;
   bool sync = false;
   dynamic data = {};
   @override
@@ -33,13 +35,13 @@ class _WiFiControlScreenState extends State<WiFiControlScreen> {
       setState(() {
         data = jsonDecode(d);
       });
-      if (!sync) {
-        led1State = data["ledsState"]["1"] == 1 ? true : false;
-        led2State = data["ledsState"]["2"] == 1 ? true : false;
-        led3State = data["ledsState"]["3"] == 1 ? true : false;
-        led4State = data["ledsState"]["4"] == 1 ? true : false;
-        sync = true;
-      }
+      led1State = data["ledsState"]["1"] == 1 ? true : false;
+      led2State = data["ledsState"]["2"] == 1 ? true : false;
+      led3State = data["ledsState"]["3"] == 1 ? true : false;
+      led4State = data["ledsState"]["4"] == 1 ? true : false;
+      doorState = data["doorState"] == 1 ? true : false;
+      windowState = data["windowState"] == 1 ? true : false;
+      sync = true;
       if (data["PIR"] == 1) {
         NotificationHelper.showNotification(
             title: "Güvenlik uyarısı", body: "Hareket algılandı", payload: "a");
@@ -125,6 +127,36 @@ class _WiFiControlScreenState extends State<WiFiControlScreen> {
                   width: 110,
                 ),
               ],
+            ),
+            Row(
+              children: [
+                EButtonContainer.build(
+                    element: EIconButton.build(
+                        text: "Kapı: ${doorState ? "Açık" : "Kapalı"}",
+                        icon: doorState
+                            ? Icons.door_back_door_sharp
+                            : Icons.door_back_door_outlined,
+                        onPressed: () {
+                          doorState = !doorState;
+                          wsSend();
+                        },
+                        borderRadius: 5,
+                        sizedBoxWidth: 5),
+                    width: 160),
+                EButtonContainer.build(
+                    element: EIconButton.build(
+                        text: "Cam: ${windowState ? "Açık" : "Kapalı"}",
+                        icon: windowState
+                            ? Icons.window_sharp
+                            : Icons.window_outlined,
+                        onPressed: () {
+                          windowState = !windowState;
+                          wsSend();
+                        },
+                        borderRadius: 5,
+                        sizedBoxWidth: 5),
+                    width: 160)
+              ],
             )
           ],
         ));
@@ -148,7 +180,9 @@ class _WiFiControlScreenState extends State<WiFiControlScreen> {
         "led1State": led1State ? 1 : 0,
         "led2State": led2State ? 1 : 0,
         "led3State": led3State ? 1 : 0,
-        "led4State": led4State ? 1 : 0
+        "led4State": led4State ? 1 : 0,
+        "doorState": doorState ? 1 : 0,
+        "windowState": windowState ? 1 : 0,
       }));
     });
   }

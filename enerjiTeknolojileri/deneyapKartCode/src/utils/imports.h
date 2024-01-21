@@ -9,6 +9,7 @@
 #define LED_PIN_2 D6
 #define LED_PIN_3 D7
 #define LED_PIN_4 D8
+#define BUZZER_PIN D9
 
 #define MQ2 A0
 #define LDR1 A1

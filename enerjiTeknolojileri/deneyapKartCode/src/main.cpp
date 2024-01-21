@@ -15,6 +15,7 @@ int servoPos = 90;
 WSCC wsc(_wsc);
 void onMessageCallback(WebsocketsMessage message);
 Servo servo;
+
 void setup()
 {
   DefinePinMode();
@@ -23,12 +24,12 @@ void setup()
   wsc.start(websockets_connection_string, onMessageCallback);
   irrecv.enableIRIn();
   sensors.start();
-  servo.attach(D9);
+  // servo.attach(D9);
 }
 void loop()
 {
 
-  servo.write(servoPos);
+  // servo.write(servoPos);
   digitalWrite(LED_PIN_1, sensors.led1State);
   digitalWrite(LED_PIN_2, sensors.led2State);
   digitalWrite(LED_PIN_3, sensors.led3State);
@@ -46,7 +47,13 @@ void loop()
     if (servoPos != 180)
       servoPos += 10;
   }
-
+  if (sensors.getPirValue() == HIGH)
+  {
+    digitalWrite(BUZZER_PIN, HIGH);
+    delay(100);
+    digitalWrite(BUZZER_PIN, LOW);
+    delay(100);
+  }
   if (irrecv.decode(&results))
   {
     // if (results.value == IR_NUM_1)
@@ -101,4 +108,6 @@ void onMessageCallback(WebsocketsMessage message)
   sensors.led2State = doc["ledsState"]["2"] == 1 ? HIGH : LOW;
   sensors.led3State = doc["ledsState"]["3"] == 1 ? HIGH : LOW;
   sensors.led4State = doc["ledsState"]["4"] == 1 ? HIGH : LOW;
+  sensors.doorState = doc["doorState"] == 1 ? HIGH : LOW;
+  sensors.windowState = doc["windowState"] == 1 ? HIGH : LOW;
 }

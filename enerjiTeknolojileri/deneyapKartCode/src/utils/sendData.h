@@ -1,5 +1,5 @@
 unsigned long prevMillis = millis();
-const unsigned long delayInterval = 1000;
+const unsigned long delayInterval = 100;
 
 void sendDataWithWiFi(Sensors sensors, WSCC &wsc)
 {
@@ -15,7 +15,8 @@ void sendDataWithWiFi(Sensors sensors, WSCC &wsc)
         doc["ledsState"]["2"] = sensors.led2State;
         doc["ledsState"]["3"] = sensors.led3State;
         doc["ledsState"]["4"] = sensors.led4State;
-
+        doc["doorState"] = sensors.doorState;
+        doc["windowState"] = sensors.windowState;
         String output;
         serializeJson(doc, output);
         Serial.println(output);
