@@ -38,6 +38,7 @@ dependencies:
   get: ^4.6.6
   flutter_blue_plus: ^1.31.8
   web_socket_channel: ^2.4.0
+  flutter_bluetooth_serial: ^0.4.0
 
 dev_dependencies:
   flutter_test:

@@ -15,9 +15,7 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Bağlantı Ekranı(Enes AKTAS)"),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      backgroundColor: Theme.of(context).colorScheme.primary,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -37,7 +35,7 @@ class _HomeState extends State<Home> {
               element: EIconButton.build(
                 text: "Bluetooth bağlantısı",
                 icon: Icons.bluetooth,
-                onPressed: () => Get.toNamed("blueToothConnection"),
+                onPressed: () => Get.toNamed("bluetoothConnection"),
                 borderRadius: 10,
               ),
               left: 70,
