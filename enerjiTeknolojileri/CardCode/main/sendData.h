@@ -8,13 +8,12 @@ void sendData(Sensors sensors,SoftwareSerial &bluetooth/*,WSCC &wsc*/){
         doc["humidity"] = sensors.getHumidity();
         doc["temperature"] =(int) sensors.getTemperature();
         doc["smokeValue"] = sensors.getSmokeValue();
-        doc["PIR"] = sensors.getPirValue() == HIGH ? 1 : 0;
-        /*
-        doc["ledsState"]["1"] = sensors.led1State;
-        doc["ledsState"]["2"] = sensors.led2State;
-        doc["ledsState"]["3"] = sensors.led3State;
-        doc["ledsState"]["4"] = sensors.led4State;
-        */
+        doc["PIR"] = (sensors.getPirValue() == HIGH ? 1 : 0);
+      
+        doc["led1State"] = sensors.led1State;
+        doc["led2State"] = sensors.led2State;
+        doc["led3State"] = sensors.led3State;
+        doc["led4State"] = sensors.led4State;
         doc["doorState"] = sensors.doorState;
         doc["windowState"] = sensors.windowState;
         String output;

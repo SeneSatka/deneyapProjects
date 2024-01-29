@@ -1,3 +1,4 @@
+#include "esp32-hal-gpio.h"
 #include "DHT.h"
 DHT dht(dhtPin, dhtType);
 class Sensors
@@ -19,10 +20,7 @@ public:
     }
     int getPirValue()
     {
-        if (digitalRead(PIR) == HIGH)
-            return HIGH;
-        else
-            return LOW;
+        return digitalRead(PIR);
     }
     int getSmokeValue()
     {

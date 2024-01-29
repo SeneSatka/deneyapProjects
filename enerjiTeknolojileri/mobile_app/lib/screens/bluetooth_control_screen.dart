@@ -24,7 +24,7 @@ class _BluetoothControlScreenState extends State<BluetoothControlScreen> {
   bool led4State = false;
   bool doorState = false;
   bool windowState = false;
-  bool sync = false;
+  bool ss_s = false;
   dynamic data = {};
   @override
   void initState() {
@@ -42,6 +42,7 @@ class _BluetoothControlScreenState extends State<BluetoothControlScreen> {
     bool recaiving = false;
 
     _streamSubscription = connection.input?.listen((Uint8List d) async {
+      ss_s = true;
       // print(ascii.decode(d));
       try {
         if (ascii.decode(d).startsWith("{")) {
@@ -68,7 +69,12 @@ class _BluetoothControlScreenState extends State<BluetoothControlScreen> {
                   body: "Hareket algılandı",
                   payload: "a");
             }
-
+            led1State = data["led1State"] == 1 ? true : false;
+            led2State = data["led2State"] == 1 ? true : false;
+            led3State = data["led3State"] == 1 ? true : false;
+            led4State = data["led4State"] == 1 ? true : false;
+            doorState = data["doorState"] == 1 ? true : false;
+            windowState = data["windowState"] == 1 ? true : false;
             // print(data);
           });
           dataString = "";
@@ -78,16 +84,13 @@ class _BluetoothControlScreenState extends State<BluetoothControlScreen> {
           }
         }
       } catch (e) {}
+    }).onDone(() {
+      Get.back();
     }) as StreamSubscription;
     //   setState(() {
     //     data = jsonDecode(d);
     //   });
-    //   led1State = data["ledsState"]["1"] == 1 ? true : false;
-    //   led2State = data["ledsState"]["2"] == 1 ? true : false;
-    //   led3State = data["ledsState"]["3"] == 1 ? true : false;
-    //   led4State = data["ledsState"]["4"] == 1 ? true : false;
-    //   doorState = data["doorState"] == 1 ? true : false;
-    //   windowState = data["windowState"] == 1 ? true : false;
+
     //   sync = true;
     //   if (data["PIR"] == 1) {
     //     NotificationHelper.showNotification(
@@ -102,7 +105,10 @@ class _BluetoothControlScreenState extends State<BluetoothControlScreen> {
 
   @override
   void dispose() {
-    _stopListening();
+    if (ss_s) {
+      _stopListening();
+    }
+
     connection.close();
 
     super.dispose();
@@ -221,19 +227,24 @@ class _BluetoothControlScreenState extends State<BluetoothControlScreen> {
         width: 160);
   }
 
-  send() {
-    setState(() async {
-      connection.output.add(utf8.encode(jsonEncode({"as": 1})));
-      await connection.output.allSent;
-      //   _channel.sink.add(jsonEncode({
-      //     "device": 1,
-      //     "led1State": led1State ? 1 : 0,
-      //     "led2State": led2State ? 1 : 0,
-      //     "led3State": led3State ? 1 : 0,
-      //     "led4State": led4State ? 1 : 0,
-      //     "doorState": doorState ? 1 : 0,
-      //     "windowState": windowState ? 1 : 0,
-      //   }));
-    });
+  send() async {
+    connection.output.add(utf8.encode(jsonEncode({
+      "1": led1State ? 1 : 0,
+      "2": led2State ? 1 : 0,
+      "3": led3State ? 1 : 0,
+      "4": led4State ? 1 : 0,
+      "d": doorState ? 1 : 0,
+      "w": windowState ? 1 : 0,
+    })));
+    await connection.output.allSent;
+    //   _channel.sink.add(jsonEncode({
+    //     "device": 1,
+    // "led1State": led1State ? 1 : 0,
+    // "led2State": led2State ? 1 : 0,
+    // "led3State": led3State ? 1 : 0,
+    // "led4State": led4State ? 1 : 0,
+    // "doorState": doorState ? 1 : 0,
+    // "windowState": windowState ? 1 : 0,
+    //   }));
   }
 }

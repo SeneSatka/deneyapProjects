@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_app/utils/button.dart';
-// import 'package:mobile_app/utils/notification_helper.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -46,26 +45,3 @@ class _HomeState extends State<Home> {
     );
   }
 }
-// Row(
-//             children: [
-//               Container(
-//                 margin: const EdgeInsets.all(20),
-//                 child: ElevatedButton(
-//                   onPressed: () {},
-//                   style: ButtonStyle(
-//                       padding:
-//                           const MaterialStatePropertyAll(EdgeInsets.all(20)),
-//                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-//                           RoundedRectangleBorder(
-//                         borderRadius: BorderRadius.circular(18.0),
-//                       ))),
-//                   child: const Text("İnternet ile Bağlan"),
-//                 ),
-//               ),
-//               Container(
-//                 margin: const EdgeInsets.all(20),
-//                 child: ElevatedButton(
-//                     onPressed: () {}, child: const Text("İnternet ile Bağlan")),
-//               ),
-//             ],
-//           )

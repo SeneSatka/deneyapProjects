@@ -4,12 +4,11 @@
 #define dhtType DHT11
 #define dhtPin D11
 #define PIR D12
-#define RECV_PIN D4
-#define LED_PIN_1 D5
-#define LED_PIN_2 D6
-#define LED_PIN_3 D7
-#define LED_PIN_4 D8
-#define BUZZER_PIN D9
+#define LED_PIN_1 D4
+#define LED_PIN_2 D5
+#define LED_PIN_3 D6
+#define LED_PIN_4 D7
+#define BUZZER_PIN D8
 
 #define MQ2 A0
 #define LDR1 A1
