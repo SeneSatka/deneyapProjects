@@ -11,8 +11,7 @@ class NotificationHelper {
   }
 
   static Future _notificationDetails() async => const NotificationDetails(
-      android: AndroidNotificationDetails(
-          "Senka Smart Home", "Senka Smart Home",
+      android: AndroidNotificationDetails("Senka Akıllı Ev", "Senka Akıllı Ev",
           importance: Importance.max));
   static Future showNotification(
           {int id = 0,

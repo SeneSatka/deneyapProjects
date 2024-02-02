@@ -13,7 +13,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Bağlantı Ekranı(Enes AKTAS)"),
+        title: const Text("Senka Ana Sayfa"),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,

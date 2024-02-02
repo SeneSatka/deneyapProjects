@@ -19,7 +19,7 @@ class _DeviceWithAvailability {
   int availability;
   int? rssi;
 
-  _DeviceWithAvailability(this.device, this.availability, [this.rssi]);
+  _DeviceWithAvailability(this.device, this.availability);
 }
 
 class _SelectBluettothDevice extends State<SelectBluettothDevice> {
@@ -70,7 +70,7 @@ class _SelectBluettothDevice extends State<SelectBluettothDevice> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Aygıt Seç')),
+        appBar: AppBar(title: const Text('Senka Bluetooth Bağlantısı')),
         body: ListView(
             children: devices
                 .map((device) => DeviceElement(
@@ -79,11 +79,9 @@ class _SelectBluettothDevice extends State<SelectBluettothDevice> {
                       enabled: device.availability == 1,
                       onTap: () async {
                         await Get.to(
-                                BluetoothControlScreen(device: device.device),
-                                transition: Transition.fadeIn)
-                            ?.then((a) {
-                          _startDiscovery();
-                        });
+                            BluetoothControlScreen(device: device.device),
+                            transition: Transition.fadeIn);
+
                         // BluetoothConnection connection =
                         //     await BluetoothConnection.toAddress(
                         //         device.device.address);

@@ -17,7 +17,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'SeneSatka(Enes AKTAS)',
+      title: 'Senka Akıllı Ev',
       theme: ThemeData(
           colorScheme: const ColorScheme.dark(
         background: Colors.black,

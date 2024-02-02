@@ -24,7 +24,7 @@ class _BluetoothControlScreenState extends State<BluetoothControlScreen> {
   bool led4State = false;
   bool doorState = false;
   bool windowState = false;
-  bool ss_s = false;
+  bool ssS = false;
   dynamic data = {};
   @override
   void initState() {
@@ -42,8 +42,7 @@ class _BluetoothControlScreenState extends State<BluetoothControlScreen> {
     bool recaiving = false;
 
     _streamSubscription = connection.input?.listen((Uint8List d) async {
-      ss_s = true;
-      // print(ascii.decode(d));
+      ssS = true;
       try {
         if (ascii.decode(d).startsWith("{")) {
           dataString += ascii.decode(d);
@@ -54,15 +53,11 @@ class _BluetoothControlScreenState extends State<BluetoothControlScreen> {
           if (dataString.split("}").length > 2) {
             dataString = "${dataString.split("}")[0]}}";
           }
-          // print(dataString);
           setState(() {
             try {
-              print(data);
               data = jsonDecode(dataString);
-            } catch (e) {
-              print("convert error");
-            }
-
+              print(data);
+            } catch (e) {}
             if (data["PIR"] == 1) {
               NotificationHelper.showNotification(
                   title: "Güvenlik uyarısı",
@@ -105,7 +100,7 @@ class _BluetoothControlScreenState extends State<BluetoothControlScreen> {
 
   @override
   void dispose() {
-    if (ss_s) {
+    if (ssS) {
       _stopListening();
     }
 
@@ -118,7 +113,7 @@ class _BluetoothControlScreenState extends State<BluetoothControlScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Kontrol Ekranı(Enes AKTAS)"),
+          title: const Text("Senka Kontrol Ekranı"),
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         ),
         body: Column(
