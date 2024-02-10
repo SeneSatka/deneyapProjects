@@ -1,178 +1,209 @@
-#include "imports.h"
-SoftwareSerial BTSerial(D2, D3,false);
-//RGBStts rgbSt=RgbStts(LED);
+#define dhtType DHT11
+#define dhtPin D11
+#define PIR D12
+#define LED_PIN_1 D4
+#define LED_PIN_2 D5
+#define LED_PIN_3 D6
+#define LED_PIN_4 D7
+#define BUZZER_PIN D8
+#define DOOR_SERVO D9
+#define WINDOW_SERVO D10
+#define MQ2 A0
+
+#include <Arduino.h>
+#include <ESP32Servo.h>
+#include <ArduinoJson.h>
+#include <SoftwareSerial.h>
+#include "DHT.h"
+
+DHT dht(dhtPin, dhtType);
+class Sensors {
+public:
+  int led1State = LOW, led2State = LOW, led3State = LOW, led4State = LOW, doorState = LOW, windowState = LOW;
+
+  Sensors(){};
+  void start() {
+    dht.begin();
+  };
+
+  float getHumidity() {
+    return dht.readHumidity();
+  };
+
+  float getTemperature() {
+    return dht.readTemperature();
+  };
+
+  int getPirValue() {
+    return digitalRead(PIR);
+  };
+
+  int getSmokeValue() {
+    return analogRead(MQ2);
+  };
+};
+
+class RGBStts {
+public:
+  int ledR_pin;
+  int ledG_pin;
+  int ledB_pin;
+
+  RGBStts(int _ledR_pin, int _ledG_pin, int _ledB_pin) {
+    ledR_pin = _ledR_pin;
+    ledG_pin = _ledG_pin;
+    ledB_pin = _ledB_pin;
+  };
+
+  void closeAll() {
+    digitalWrite(ledR_pin, LOW);
+    digitalWrite(ledG_pin, LOW);
+    digitalWrite(ledB_pin, LOW);
+  };
+
+  void red() {
+    closeAll();
+    digitalWrite(ledR_pin, HIGH);
+  };
+
+  void green() {
+    closeAll();
+    digitalWrite(ledG_pin, HIGH);
+  };
+
+  void blue() {
+    closeAll();
+    digitalWrite(ledB_pin, HIGH);
+  };
+
+  void success() {
+    green();
+  };
+
+  void error() {
+    red();
+  };
+
+  void signal(int delayMS = 500) {
+    blue();
+  };
+};
+
+SoftwareSerial Bluetooth(D2, D3, false);
+RGBStts rgbStts = RGBStts(LEDR, LEDG, LEDB);
 Sensors sensors;
 Servo doorServo;
-Servo windowsServo;
-void setup(){
-  DefinePinMode();
-    sensors.start();
-Serial.begin(115200);
+Servo windowServo;
+StaticJsonDocument<200> recaiveDoc;
+StaticJsonDocument<200> sendDoc;
+
+bool recaive = false;
+String data = "";
+
+unsigned long prevMillis = millis();
+const unsigned long delayInterval = 1000;
+void setup() {
+  Serial.begin(115200);
+  Bluetooth.begin(9600);
+
   pinMode(LEDR, OUTPUT);
   pinMode(LEDG, OUTPUT);
-  BTSerial.begin(9600);
-//  doorServo.attach();
-}
-bool recaive=false;
-String data="";
-void loop(){
+  pinMode(LEDB, OUTPUT);
+  pinMode(LED_PIN_1, OUTPUT);
+  pinMode(LED_PIN_2, OUTPUT);
+  pinMode(LED_PIN_3, OUTPUT);
+  pinMode(LED_PIN_4, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(PIR, INPUT);
+  pinMode(MQ2, INPUT);
 
-  
-   digitalWrite(LED_PIN_1, sensors.led1State);
-  digitalWrite(LED_PIN_2, sensors.led2State);
-  digitalWrite(LED_PIN_3, sensors.led3State);
-  digitalWrite(LED_PIN_4, sensors.led4State);
-if (BTSerial.available()) {
- 
-    char c=BTSerial.read();
-     if(c=='{'){
-      recaive=true;
-      data+="{";
-     }else if(c=='}'){
-      recaive=false;
-      data+="}";
-      Serial.println(data);
-       StaticJsonDocument<200> doc;
-       deserializeJson(doc, data);
-      sensors.led1State = doc["1"] == 1 ? HIGH : LOW;
-      sensors.led2State = doc["2"] == 1 ? HIGH : LOW;
-      sensors.led3State = doc["3"] == 1 ? HIGH : LOW;
-      sensors.led4State = doc["4"] == 1 ? HIGH : LOW;
-    sensors.doorState = doc["d"] == 1 ? HIGH : LOW;
-  sensors.windowState = doc["w"] == 1 ? HIGH : LOW;
-
-
-
-
-      data="";
-     }else{
-      if(recaive)
-      data+=c;
-     }
-  
-    if(c=='0')
-      digitalWrite(LEDR, HIGH);
-    else 
-    digitalWrite(LEDR, LOW);
-  }
-  if (Serial.available()) {
-    BTSerial.write(Serial.read());
-    }
-    sendData(sensors, BTSerial);
-  
-}
-/*
-#include "utils/imports.h"
-
-const char *ssid = "FiberHGW_ZTAT49_2.4GHz";
-const char *password = "33khNYhCUeDf";
-const char *websockets_connection_string = "ws://192.168.1.111:8080"; // Enter server adress
-
-float humidity = 0, temperature = 0;
-
-RGBStts RgbStatus = RGBStts(LEDR, LEDG, LEDB);
-Sensors sensors;
-IRrecv irrecv(RECV_PIN);
-decode_results results;
-WebsocketsClient _wsc;
-int servoPos = 90;
-WSCC wsc(_wsc);
-void onMessageCallback(WebsocketsMessage message);
-Servo servo;
-
-void setup()
-{
-  DefinePinMode();
-  Serial.begin(115200);
-  connectWifi(ssid, password, RgbStatus);
-  wsc.start(websockets_connection_string, onMessageCallback);
-  irrecv.enableIRIn();
   sensors.start();
-  // servo.attach(D9);
-}
-void loop()
-{
 
-  // servo.write(servoPos);
+  doorServo.attach(DOOR_SERVO);
+  doorServo.write(0);
+
+  windowServo.attach(WINDOW_SERVO);
+  windowServo.write(0);
+}
+
+
+void loop() {
   digitalWrite(LED_PIN_1, sensors.led1State);
   digitalWrite(LED_PIN_2, sensors.led2State);
   digitalWrite(LED_PIN_3, sensors.led3State);
   digitalWrite(LED_PIN_4, sensors.led4State);
-  int ldr1 = map(analogRead(A1), 0, 8191, 0, 100);
-  int ldr2 = map(analogRead(A2), 0, 8191, 0, 100);
+  if (sensors.getPirValue() == HIGH){ 
+     digitalWrite(BUZZER_PIN, HIGH);
+     delay(100);
+        digitalWrite(BUZZER_PIN, LOW);
+         delay(100);
+     }
+  if(sensors.getSmokeValue()>7000){ 
+    sensors.windowState=HIGH;
+     digitalWrite(BUZZER_PIN, HIGH);
+     delay(100);
+        digitalWrite(BUZZER_PIN, LOW);
+         delay(100);
+     }
 
-  if (ldr1 - ldr2 > 10)
-  {
-    if (servoPos != 0)
-      servoPos -= 10;
+  if (sensors.doorState == HIGH) doorServo.write(90);
+  else doorServo.write(0);
+
+  if (sensors.windowState == HIGH) windowServo.write(90);
+  else windowServo.write(0);
+
+  if (Bluetooth.available()) {
+    char c = Bluetooth.read();
+    if (c == '{') {
+      recaive = true;
+      rgbStts.signal();
+      data += "{";
+    } else if (c == '}') {
+      recaive = false;
+      data += "}";
+      Serial.println(data);
+
+      deserializeJson(recaiveDoc, data);
+
+      sensors.led1State = recaiveDoc["1"] == 1 ? HIGH : LOW;
+      sensors.led2State = recaiveDoc["2"] == 1 ? HIGH : LOW;
+      sensors.led3State = recaiveDoc["3"] == 1 ? HIGH : LOW;
+      sensors.led4State = recaiveDoc["4"] == 1 ? HIGH : LOW;
+
+      sensors.doorState = recaiveDoc["d"] == 1 ? HIGH : LOW;
+      sensors.windowState = recaiveDoc["w"] == 1 ? HIGH : LOW;
+      data = "";
+      rgbStts.success();
+    } else {
+      if (recaive) data += c;
+    }
   }
-  else if (ldr2 - ldr1 > 10)
-  {
-    if (servoPos != 180)
-      servoPos += 10;
+
+  if (Serial.available()) Bluetooth.write(Serial.read());
+
+  if (millis() - prevMillis >= delayInterval) {
+
+    sendDoc["humidity"] = sensors.getHumidity();
+
+    sendDoc["temperature"] = (int)sensors.getTemperature();
+
+    sendDoc["smokeValue"] = sensors.getSmokeValue();
+
+    sendDoc["PIR"] = (sensors.getPirValue() == HIGH ? 1 : 0);
+
+    sendDoc["led1State"] = sensors.led1State;
+    sendDoc["led2State"] = sensors.led2State;
+    sendDoc["led3State"] = sensors.led3State;
+    sendDoc["led4State"] = sensors.led4State;
+
+    sendDoc["doorState"] = sensors.doorState;
+    sendDoc["windowState"] = sensors.windowState;
+
+    String output;
+    serializeJson(sendDoc, output);
+    const char *cstr = output.c_str();
+    Bluetooth.write(cstr);
+
+    prevMillis = millis();
   }
-  if (sensors.getPirValue() == HIGH)
-  {
-    digitalWrite(BUZZER_PIN, HIGH);
-    delay(100);
-    digitalWrite(BUZZER_PIN, LOW);
-    delay(100);
-  }
-  if (irrecv.decode(&results))
-  {
-    // if (results.value == IR_NUM_1)
-    //   Serial.println("1");
-    // if (results.value == IR_NUM_2)
-    //   Serial.println("2");
-    // if (results.value == IR_NUM_3)
-    //   Serial.println("3");
-    // if (results.value == IR_NUM_4)
-    //   Serial.println("4");
-    // if (results.value == IR_NUM_5)
-    //   Serial.println("5");
-    // if (results.value == IR_NUM_6)
-    //   Serial.println("6");
-    // if (results.value == IR_NUM_7)
-    //   Serial.println("7");
-    // if (results.value == IR_NUM_8)
-    //   Serial.println("8");
-    // if (results.value == IR_NUM_9)
-    //   Serial.println("9");
-    // if (results.value == IR_NUM_0)
-    //   Serial.println("0");
-    // if (results.value == IR_SQUARE)
-    //   Serial.println("#");
-    // if (results.value == IR_STAR)
-    //   Serial.println("*");
-    // if (results.value == IR_UP)
-    //   Serial.println("UP");
-    // if (results.value == IR_DOWN)
-    //   Serial.println("DOWN");
-    // if (results.value == IR_RIGHT)
-    //   Serial.println("RIGHT");
-    // if (results.value == IR_LEFT)
-    //   Serial.println("LEFT");
-    // if (results.value == IR_OK)
-    //   sendDataWithWiFi(sensors, wsc);
-    irrecv.resume();
-  }
-  sendDataWithWiFi(sensors, wsc);
-  delay(100);
-  wsc.wsc.poll();
 }
-void onMessageCallback(WebsocketsMessage message)
-{
-  Serial.println(message.data());
-  StaticJsonDocument<200> doc;
-  deserializeJson(doc, message.data());
-  int code = doc["code"];
-  int aa = doc["ledsState"][1];
-  // Serial.println(aa);
-  sensors.led1State = doc["ledsState"]["1"] == 1 ? HIGH : LOW;
-  sensors.led2State = doc["ledsState"]["2"] == 1 ? HIGH : LOW;
-  sensors.led3State = doc["ledsState"]["3"] == 1 ? HIGH : LOW;
-  sensors.led4State = doc["ledsState"]["4"] == 1 ? HIGH : LOW;
-  sensors.doorState = doc["doorState"] == 1 ? HIGH : LOW;
-  sensors.windowState = doc["windowState"] == 1 ? HIGH : LOW;
-}
-*/

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "708103188138",
+    "project_id": "deneyap-smart-house",
+    "storage_bucket": "deneyap-smart-house.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:708103188138:android:6e742e3b9655d3b1a02ad3",
+        "android_client_info": {
+          "package_name": "com.example.deneyap_smart_house"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXyUnSDk9GaiVV_4xjIJGfxHYZAfz_R2g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
